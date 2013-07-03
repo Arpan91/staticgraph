@@ -64,8 +64,8 @@ def dijkstra_all(G, s, directed = False):
 
     Parameters
     ----------
-    G : An undirected weighted staticgraph.
-    s : Source node.
+    G       : An undirected weighted staticgraph.
+    s       : Source node.
     
     Returns
     -------
@@ -94,11 +94,14 @@ def dijkstra_all(G, s, directed = False):
     visited = zeros(order, dtype = uint8)
     weights[:] = (2 ** 64) -1
     weights[s] = 0
+    count = 0
     heap_size = order
     build_min_heap(nodes, heap_size, weights)
 
     while isEmpty(nodes) == False:
         u = extract_min_dist(nodes, weights, heap_size)
+        if weights[u] != (2 ** 64) - 1:
+            count += 1
         visited[u] = 1
         heap_size -= 1
 
@@ -111,10 +114,10 @@ def dijkstra_all(G, s, directed = False):
                     
         #if graph is directed
         else:
-             for v in G.successors(u):
-                 if visited[v] == 0:
-                     if weights[v] > (weights[u] + G.weight(u, v)):
-                         weights[v] = (weights[u] + G.weight(u, v))
+            for v in G.successors(u):
+                if visited[v] == 0:
+                    if weights[v] > (weights[u] + G.weight(u, v)):
+                        weights[v] = (weights[u] + G.weight(u, v))
         
         build_min_heap(nodes, heap_size, weights)
 
@@ -122,7 +125,7 @@ def dijkstra_all(G, s, directed = False):
     sort_indices = weights.argsort()
     weights = weights[sort_indices]
     nodes = nodes[sort_indices]
-    return nodes, weights
+    return nodes[:count], weights[:count]
 
 def dijkstra_search(G, s, t, directed = False):
     """

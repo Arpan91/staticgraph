@@ -32,4 +32,4 @@ def test_degree_centrality(testgraph):
     nx_deg = nx.degree_centrality(a)
     sg_deg = sg.graph_centrality.degree_centrality(b)
     for i in a.nodes():
-        assert "{0:.12f}".format(nx_deg[i]) == "{0:.12f}".format(sg_deg[i])
+        assert abs(sg_deg[i] - nx_deg[i]) < 1e-5
