@@ -75,7 +75,7 @@ def closeness_centrality(G, nodes=None, dijkstra = False, normalized=True):
     part separately.
     """
 
-    if dijkstra = True:
+    if dijkstra == True:
         if nodes is None:
             nodes = arange(G.order(), dtype = uint32)
         else:
