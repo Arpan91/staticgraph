@@ -45,12 +45,15 @@ def closeness_centrality(G, nodes=None, dijkstra = False, normalized=True):
     Parameters
     ----------
     G          : An undirected staticgraph 
+
     nodes      : List of nodes, optional
                  Return only the values for vertices in nodes
                  If None, then computation done for all nodes
+
     dijkstra   : bool, optional
-                 If true, computation is done using 
-                 dijkstra's algorithm for weighted graphs.
+                 If true, computation is done using dijkstra's algorithm.
+                 If false, computation is done using BFS traversal.
+                 
     normalized : bool, optional      
                  If True (default) normalize by the graph size.
 
@@ -75,27 +78,30 @@ def closeness_centrality(G, nodes=None, dijkstra = False, normalized=True):
     part separately.
     """
 
-    if dijkstra == True:
-        if nodes is None:
-            nodes = arange(G.order(), dtype = uint32)
+    
+    if nodes is None:
+        nodes = arange(G.order(), dtype = uint32)
+    else:
+        nodes = array(nodes, dtype = uint32)
+    
+    closeness_centrality=empty(nodes.size, dtype = float64)
+    order = G.order()
+
+    sp = []
+    for i in xrange(nodes.size):
+        if dijkstra == True:
+            sp = sg.dijkstra.dijkstra_all(G, nodes[i])
         else:
-            nodes = array(nodes, dtype = uint32)
-    
-        closeness_centrality=empty(nodes.size, dtype = float64)
-
-        order = G.order()
-
-        for i in xrange(nodes.size):
-            sp=sg.dijkstra.dijkstra_all(G, nodes[i])
-            totsp=sum(sp[1])
-            if totsp > 0.0 and order > 1:
-                closeness_centrality[i]= float((sp[1].size - 1)) / totsp
+            sp = sg.graph_shortest_paths.single_source_shortest_path_dist(G, nodes[i])
+        totsp=sum(sp[1])
+        if totsp > 0.0 and order > 1:
+            closeness_centrality[i]= float((sp[1].size - 1)) / totsp
             
-                # normalize to number of nodes-1 in connected part
-                if normalized:
-                    s=float(sp[1].size - 1) / (order - 1)
-                    closeness_centrality[i] *= s
-            else:                                                                
-                closeness_centrality[i]=0.0           
+            # normalize to number of nodes-1 in connected part
+            if normalized:
+                s=float(sp[1].size - 1) / (order - 1)
+                closeness_centrality[i] *= s
+        else:                                                                
+            closeness_centrality[i]=0.0           
     
-        return nodes, closeness_centrality
+    return nodes, closeness_centrality
