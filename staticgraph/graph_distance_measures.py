@@ -3,26 +3,24 @@ Functions for the standard distance measures for undirected graphs.
 """
 
 import staticgraph as sg
-from numpy import empty, uint32, amax, amin, array
+from numpy import empty, uint32, amax, amin, array, arange
 from random import sample
 from staticgraph.exceptions import StaticGraphNodeAbsentException
 from staticgraph.exceptions import StaticGraphDisconnectedGraphException
 
-def eccentricity(G, n_nodes, v=None):
+def eccentricity(G, nodes = None, v=None):
     """
     Return the eccentricity of nodes in G.
 
     The eccentricity of a node v is the maximum distance from v to
-    all other nodes in a subgraph of GG.
+    all other nodes in G.
 
     Parameters
     ----------
     G :       An undirected staticgraph
 
-    n_nodes : Total no.of nodes of subgraph.
-
-    v :       node, optional
-              Return value of specified node       
+    nodes :  List of nodes for which eccentricity is to be found, optional.
+             If empty, returns eccentricity for all nodes
 
     Returns
     -------
@@ -35,29 +33,18 @@ def eccentricity(G, n_nodes, v=None):
     Exception is raised if given graph has disconnected components.
     """
 
-    if v != None and v >= G.order():
-        raise StaticGraphNodeAbsentException("given node absent in graph!!")
-    
+    if nodes == None:
+        nodes = arange(order, dtype = uint32)
+
     order = G.order()
-    edgelist = empty((n_nodes ** 2, 2), dtype = uint32) 
-    index = 0
-
-    nodes = sample(xrange(order), n_nodes)    
     nodes = array(nodes, dtype = uint32)
+    n_nodes = nodes.size
     
-    if v != None:
-        if v not in nodes:
-            nodes[0] = v
-
-    if v != None:
-        sp = sg.graph_traversal.bfs_all(G, v)
-        if sp[1].size < n_nodes:
-            raise StaticGraphDisconnectedGraphException("disconnected graph!!")
-        return sp[0].size - 2
-
     ecc = empty((2, n_nodes), dtype = uint32)
     index = 0
     for i in xrange(n_nodes):
+        if nodes[i] >= order:
+            raise StaticGraphNodeAbsentException("given node absent in graph!!")
         sp = sg.graph_traversal.bfs_all(G, nodes[i])
         ecc[0, i] = nodes[i]
         if sp[1].size < n_nodes:
@@ -77,7 +64,7 @@ def diameter(G,  n_nodes, e = None):
     ----------
     G : A static graph
 
-    n_nodes : Total no.of nodes of subgraph.
+    n_nodes : Total no.of nodes considered.
 
     e : eccentricity numpy 2D array, optional
       A precomputed numpy 2D array of eccentricities.
@@ -90,9 +77,10 @@ def diameter(G,  n_nodes, e = None):
     --------
     eccentricity
     """
-    
+
     if e is None:
-        e = eccentricity(G , n_nodes)
+        nodes = sample(xrange(G.order()), n_nodes)    
+        e = eccentricity(G , nodes)
     e = e[1]
     if e.size == 0:
         return None
@@ -108,7 +96,7 @@ def radius(G, n_nodes, e = None):
     ----------
     G : A static graph
 
-    n_nodes : Total no.of nodes of subgraph.
+    n_nodes : Total no.of nodes considered.
 
     e : eccentricity numpy 2D array, optional
       A precomputed numpy 2D array of eccentricities.
@@ -123,13 +111,14 @@ def radius(G, n_nodes, e = None):
     """
 
     if e is None:
-        e = eccentricity(G, n_nodes)
+        nodes = sample(xrange(G.order()), n_nodes)    
+        e = eccentricity(G , nodes)
     e = e[1]
     if e.size == 0:
         return None
     return amin(e)
 
-def periphery(G, n_nodes, e = None):
+def periphery(G, nodes = None, e = None):
     """
     Return the periphery of a subgraph of G. 
 
@@ -137,12 +126,13 @@ def periphery(G, n_nodes, e = None):
 
     Parameters
     ----------
-    G : An undirected staticgraph
+    G     : An undirected staticgraph
 
-    n_nodes : Total no.of nodes of subgraph.
+    nodes : List of nodes for which periphery nodes is to be found, optional.
+            If empty, computation done for all nodes
 
-    e : eccentricity numpy 2D array, optional
-      A precomputed numpy 2D array of eccentricities.
+    e     : eccentricity numpy 2D array, optional
+            A precomputed numpy 2D array of eccentricities.
 
     Returns
     -------
@@ -150,7 +140,7 @@ def periphery(G, n_nodes, e = None):
     """
     
     if e is None:
-        e = eccentricity(G, n_nodes)
+        e = eccentricity(G, nodes)
 
     sort_indices = e[1].argsort()
     e[0] = e[0][sort_indices]
@@ -164,7 +154,7 @@ def periphery(G, n_nodes, e = None):
 
     return e[0][i + 1:]
 
-def center(G, n_nodes, e = None):
+def center(G, nodes = None, e = None):
     """
     Return the center of a subgraph of G. 
 
@@ -172,12 +162,14 @@ def center(G, n_nodes, e = None):
 
     Parameters
     ----------
-    G : An undirected staticgraph
+    G     : An undirected staticgraph
 
-    n_nodes : Total no.of nodes of subgraph.
+    nodes : List of nodes for which periphery nodes is to be found, optional.
+            If empty, computation done for all nodes
 
-    e : eccentricity numpy 2D array, optional
-      A precomputed numpy 2D array of eccentricities.
+    e     : eccentricity numpy 2D array, optional
+            A precomputed numpy 2D array of eccentricities.
+
 
     Returns
     -------
@@ -185,7 +177,7 @@ def center(G, n_nodes, e = None):
     """
     
     if e is None:
-        e = eccentricity(G, n_nodes)
+        e = eccentricity(G, nodes)
 
     sort_indices = e[1].argsort()
     e[0] = e[0][sort_indices]
