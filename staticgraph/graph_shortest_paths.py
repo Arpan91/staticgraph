@@ -39,7 +39,6 @@ def single_source_shortest_path(G, s):
     path = path.reshape(2, order)
     
     queue = empty(order, dtype = uint32)
-    index = 0
     
     front = rear = 0
     queue[rear] = s
@@ -47,7 +46,6 @@ def single_source_shortest_path(G, s):
 
     while (front != rear):
         u = queue[front]
-        index += 1
         front = front + 1
         start = G.n_indptr[u]
         stop = G.n_indptr[u + 1]
