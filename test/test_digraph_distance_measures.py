@@ -30,7 +30,7 @@ def test_eccentricity(testgraph):
 
     a, b = testgraph
     nx_ecc = nx.eccentricity(a)
-    sg_ecc = sg.digraph_distance_measures.eccentricity(b, b.order())
+    sg_ecc = sg.digraph_distance_measures.eccentricity(b, b.nodes())
     for i in range(sg_ecc[0].size):
         assert sg_ecc[1, i] == nx_ecc[sg_ecc[0, i]]
 
@@ -61,7 +61,7 @@ def test_periphery(testgraph):
 
     a, b = testgraph
     nx_per = nx.periphery(a)
-    sg_per = sg.digraph_distance_measures.periphery(b, b.order())
+    sg_per = sg.digraph_distance_measures.periphery(b, b.nodes())
     nx_per = array(nx_per, dtype = uint32)
     nx_per.sort()
     sg_per.sort()
@@ -74,7 +74,7 @@ def test_center(testgraph):
 
     a, b = testgraph
     nx_center = nx.center(a)
-    sg_center = sg.digraph_distance_measures.center(b, b.order())
+    sg_center = sg.digraph_distance_measures.center(b, b.nodes())
     nx_center = array(nx_center, dtype = uint32)
     nx_center.sort()
     sg_center.sort()

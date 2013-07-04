@@ -8,7 +8,7 @@ from random import sample
 from staticgraph.exceptions import StaticGraphNodeAbsentException
 from staticgraph.exceptions import StaticGraphDisconnectedGraphException
 
-def eccentricity(G, nodes = None, v=None):
+def eccentricity(G, nodes = None):
     """
     Return the eccentricity of nodes in G.
 
@@ -17,16 +17,16 @@ def eccentricity(G, nodes = None, v=None):
 
     Parameters
     ----------
-    G :       An undirected staticgraph
+    G     :  An undirected staticgraph
 
-    nodes :  List of nodes for which eccentricity is to be found, optional.
+    nodes :  Iterator of nodes for which eccentricity is to be found, optional.
              If empty, returns eccentricity for all nodes
 
     Returns
     -------
-    ecc : A 2D numpy array.
-          Row 1: Node labels
-          Row 2: Eccentricity of corresponding nodes.
+    ecc   :  A 2D numpy array.
+             Row 1: Node labels
+             Row 2: Eccentricity of corresponding nodes.
 
     Notes
     -----
@@ -56,18 +56,18 @@ def eccentricity(G, nodes = None, v=None):
 
 def diameter(G,  n_nodes, e = None):
     """
-    Return the diameter of a subgraph of G.
+    Return the diameter of G.
 
     The diameter is the maximum eccentricity.
 
     Parameters
     ----------
-    G : A static graph
+    G       : A static graph
 
     n_nodes : Total no.of nodes considered.
 
-    e : eccentricity numpy 2D array, optional
-      A precomputed numpy 2D array of eccentricities.
+    e       : eccentricity numpy 2D array, optional
+              A precomputed numpy 2D array of eccentricities.
 
     Returns
     -------
@@ -128,7 +128,7 @@ def periphery(G, nodes = None, e = None):
     ----------
     G     : An undirected staticgraph
 
-    nodes : List of nodes for which periphery nodes is to be found, optional.
+    nodes : Iterator of nodes for which periphery is to be found, optional.
             If empty, computation done for all nodes
 
     e     : eccentricity numpy 2D array, optional
@@ -164,7 +164,7 @@ def center(G, nodes = None, e = None):
     ----------
     G     : An undirected staticgraph
 
-    nodes : List of nodes for which periphery nodes is to be found, optional.
+    nodes : Iterator of nodes for which center is to be found, optional.
             If empty, computation done for all nodes
 
     e     : eccentricity numpy 2D array, optional
