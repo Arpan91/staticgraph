@@ -357,3 +357,43 @@ def _single_source_dijkstra_path_basic(G, s):
     path[:] = path[:][sort_indices]
     sigma = sigma[:][sort_indices]
     return nodes[:count], dist[:count], sigma[:count]
+
+def _accumulate_basic(betweenness,S,P,sigma,s):
+    delta=empty(S.size, dtype = float64)
+    for i in xrange(S.size):
+        w = Size[i]
+        coeff = (1.0 + delta[w]) / sigma[w]
+        for j in xrange(S.size):
+            v = pred[w, j]
+            delta[v] += sigma[v] * coeff
+        if w != s:
+            betweenness[w] += delta[w]
+    return betweenness
+
+def _accumulate_endpoints(betweenness,S,P,sigma,s):
+    betweenness[s]+=S.size - 1
+    delta=empty(S.size, dtype = float64)
+    for i in xrange(S.size):
+        w = Size[i]
+        coeff = (1.0 + delta[w]) / sigma[w]
+        for j in xrange(S.size):
+            v = pred[w, j]
+            delta[v] += sigma[v] * coeff
+        if w != s:
+            betweenness[w] += delta[w] + 1
+    return betweenness
+
+def _rescale(betweenness,n,normalized):
+    if normalized is True:
+        if n <=2:
+            scale=None  # no normalization b=0 for all nodes
+        else:
+            scale=1.0/((n-1)*(n-2))
+    else: # rescale by 2 for undirected graphs
+        scale=1.0/2.0
+        
+    if scale is not None:
+        for v in betweenness:
+            betweenness[v] *= scale
+    return betweenness
+
