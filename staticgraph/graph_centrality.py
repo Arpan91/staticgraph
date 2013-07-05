@@ -302,7 +302,7 @@ def _extract_min_dist(p_queue, weights, heap_size):
     _min_heapify(p_queue, weights, 0, heap_size)
     return minimum
 
-def _dijkstra_all(G, s):
+def _single_source_dijkstra_path_basic(G, s):
     """
     Returns a sequence of vertices alongwith the length of their 
     shortest paths from source node s for a weighted staticgraph G.
@@ -323,27 +323,37 @@ def _dijkstra_all(G, s):
     pred = pred.reshape(order, order)
     pred_index = zeros(order, dtype = uint32)
     count = 0
+    index = 0
     heap_size = order
-    _build_min_heap(nodes, heap_size, weights)
+    _build_min_heap(nodes, heap_size, dist)
 
-    while isEmpty(nodes) == False:
-        u = _extract_min_dist(nodes, weights, heap_size)
-        if weights[u] != (2 ** 64) - 1:
-            count += 1
+    while _isEmpty(nodes) == False:
+        u = _extract_min_dist(nodes, dist, heap_size)
+        path[index] = u
+        index += 1
+        if dist[u] == (2 ** 64) - 1:
+            break
+        count += 1
         visited[u] = 1
         heap_size -= 1
 
            
         for v in G.neighbours(u):
             if visited[v] == 0:
-                if weights[v] > (weights[u] + G.weight(u, v)):
-                    weights[v] = (weights[u] + G.weight(u, v))
+                if dist[v] > (dist[u] + G.weight(u, v)):
+                    dist[v] = (dist[u] + G.weight(u, v))
+                    sigma[v] += u
+                    pred[v, pred_index[v]] = u
+                    pred_index[v] += 1     
+                
+            elif dist[v] == (dist[u] + G.weight(u, v)):
+                sigma[v] += u
+                pred[v, pred_index[v]] = u
+                pred_index[v] += 1     
                     
-        _build_min_heap(nodes, heap_size, weights)
+        _build_min_heap(nodes, heap_size, dist)
 
-    nodes = arange(order, dtype = uint32)
-    sort_indices = weights.argsort()
-    weights = weights[sort_indices]
-    nodes = nodes[sort_indices]
-    return nodes[:count], weights[:count]
-
+    sort_indices = dist.argsort()
+    path[:] = path[:][sort_indices]
+    sigma = sigma[:][sort_indices]
+    return nodes[:count], dist[:count], sigma[:count]
